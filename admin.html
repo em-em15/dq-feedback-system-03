@@ -50,7 +50,7 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // replace with your Apps Script URL
+const API_URL = "YOUR_DOGET_WEBAPP_URL"; // replace with your Apps Script URL
 
 async function fetchData(){
   const res = await fetch(API_URL);
@@ -77,7 +77,6 @@ async function fetchData(){
 function renderMetrics(data){
   const total = data.length;
   document.getElementById("totalSubmissions").innerText = total;
-
   const overallAvg = total? (data.reduce((sum,d)=>sum+d.Average,0)/total).toFixed(2) : 0;
   document.getElementById("allDayRating").innerText = overallAvg;
 }
@@ -125,6 +124,7 @@ updateDashboard();
 
 // Refresh every 10 seconds
 setInterval(updateDashboard,10000);
+
 </script>
 </body>
 </html>
