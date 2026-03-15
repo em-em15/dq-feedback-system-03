@@ -17,6 +17,7 @@ th{background:#d71920;color:white;}
 tr:nth-child(even){background:#f9f9f9;}
 .comments{text-align:left;white-space:pre-wrap;}
 .highlight{background:#fff3a6;animation:fade 2s forwards;}
+tr:hover{background:#ffeaa6;cursor:pointer;}
 @keyframes fade{from{background:#fff3a6;}to{background:white;}}
 </style>
 </head>
@@ -75,7 +76,6 @@ function renderMetrics(data){
   const ctx = document.getElementById("overallChart").getContext("2d");
   if(window.overallChart) window.overallChart.destroy();
 
-  // create gradient for 3D effect
   const gradient = ctx.createLinearGradient(0,0,200,200);
   gradient.addColorStop(0, '#ff4d4d');
   gradient.addColorStop(1, '#b30000');
@@ -108,6 +108,7 @@ function renderTable(data){
   data.forEach(d=>{
     const tr = document.createElement("tr");
     if(!previousIDs.has(d.Timestamp)) tr.classList.add("highlight");
+    tr.title = Average Rating: ${d.Average.toFixed(2)} ⭐;
     tr.innerHTML=`<td>${d.Timestamp}</td><td class="comments">${d.Comments}</td><td>${d.Average.toFixed(2)}</td>`;
     tbody.appendChild(tr);
     newIDs.add(d.Timestamp);
