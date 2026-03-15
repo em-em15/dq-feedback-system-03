@@ -3,21 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>Dairy Queen Feedback Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{font-family:Arial;background:#f6f6f6;margin:0;padding:20px;text-align:center;}
 h1{color:#d71920;}
 .dashboard{max-width:1000px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
-.metrics{display:flex;justify-content:space-around;margin-bottom:20px;}
-.card{background:#0057a4;color:white;padding:15px;border-radius:8px;width:220px;}
-canvas{background:white;padding:10px;border-radius:8px;box-shadow:0 0 5px rgba(0,0,0,0.1);}
+.metrics{display:flex;justify-content:space-around;margin-bottom:20px;flex-wrap:wrap;}
+.card{background:#0057a4;color:white;padding:15px;border-radius:8px;margin:5px;}
+.big-rating{font-size:48px;margin-top:10px;}
+.small-rating{font-size:18px;margin-top:5px;padding:5px 10px;}
+.per-question-list{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:20px;}
 table{width:100%;margin-top:20px;border-collapse:collapse;}
-th,td{padding:8px;border:1px solid #ddd;font-size:13px;}
+th,td{padding:8px;border:1px solid #ddd;font-size:13px;text-align:left;}
 th{background:#d71920;color:white;}
 tr:nth-child(even){background:#f9f9f9;}
-.comments{text-align:left;white-space:pre-wrap;}
 .highlight{background:#fff3a6;animation:fade 2s forwards;}
-tr:hover{background:#ffeaa6;cursor:pointer;}
 @keyframes fade{from{background:#fff3a6;}to{background:white;}}
 </style>
 </head>
@@ -28,20 +27,26 @@ tr:hover{background:#ffeaa6;cursor:pointer;}
 
 <div class="metrics">
   <div class="card">
-    <h3>Overall All-Day Rating</h3>
-    <canvas id="overallChart" width="200" height="200"></canvas>
-    <span id="avgRatingText" style="display:block;margin-top:5px;font-size:18px;">0 ⭐</span>
-  </div>
-  <div class="card">
     <h3>Total Submissions</h3>
-    <span id="totalSubmissions" style="font-size:24px;">0</span>
+    <div id="totalSubmissions" class="big-rating">0</div>
   </div>
+
+  <div class="card">
+    <h3>Overall All-Day Rating</h3>
+    <div id="overallRating" class="big-rating">0 ⭐</div>
+  </div>
+</div>
+
+<h3>Average Rating per Question</h3>
+<div id="perQuestionRatings" class="per-question-list">
+  <!-- Per question ratings populated here -->
 </div>
 
 <h3>Customer Comments</h3>
 <table id="feedbackTable">
 <thead>
 <tr>
+<th>Timestamp</th>
 <th>Comments</th>
 </tr>
 </thead>
@@ -51,49 +56,65 @@ tr:hover{background:#ffeaa6;cursor:pointer;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // Replace with your Apps Script URL
+const API_URL = "YOUR_DOGET_WEBAPP_URL"; // Replace with your Apps Script URL
 let previousIDs = new Set();
+
+// List of questions (must match Google Sheet column names)
+const QUESTIONS = [
+  "Q1_ProductQuality",
+  "Q2_Taste",
+  "Q3_MenuVariety",
+  "Q4_ServiceSpeed",
+  "Q5_StaffFriendliness",
+  "Q6_OrderAccuracy",
+  "Q7_Cleanliness",
+  "Q8_StoreAmbience",
+  "Q9_ValueForMoney",
+  "Q10_OverallExperience"
+];
 
 async function fetchData(){
   const res = await fetch(API_URL);
   const data = await res.json();
-  return data.map(r=>({
-    Timestamp: r.Timestamp || "",
-    Comments: r.Comments || "",
-    Average: Number(r.Average_Rating)||0
-  }));
+  return data.map(r=>{
+    let ratings = {};
+    QUESTIONS.forEach(q=>ratings[q] = Number(r[q]) || 0);
+    return {
+      Timestamp: r.Timestamp || "",
+      Comments: r.Comments || "",
+      Ratings: ratings
+    };
+  });
+}
+
+function computeOverall(data){
+  let allRatings = [];
+  data.forEach(d=>{ allRatings.push(...Object.values(d.Ratings)); });
+  const avg = allRatings.length ? (allRatings.reduce((s,v)=>s+v,0)/allRatings.length).toFixed(2) : 0;
+  return avg;
+}
+
+function computePerQuestion(data){
+  let perQ = {};
+  QUESTIONS.forEach(q=>{
+    let qRatings = data.map(d=>d.Ratings[q]).filter(v=>v>0);
+    perQ[q] = qRatings.length ? (qRatings.reduce((s,v)=>s+v,0)/qRatings.length).toFixed(2) : 0;
+  });
+  return perQ;
 }
 
 function renderMetrics(data){
   document.getElementById("totalSubmissions").innerText = data.length;
-  const avg = data.length ? (data.reduce((s,d)=>s+d.Average,0)/data.length).toFixed(2) : 0;
-  document.getElementById("avgRatingText").innerText = avg + " ⭐";
+  document.getElementById("overallRating").innerText = computeOverall(data) + " ⭐";
 
-  const remaining = (5 - avg).toFixed(2);
-  const ctx = document.getElementById("overallChart").getContext("2d");
-  if(window.overallChart) window.overallChart.destroy();
-
-  const gradient = ctx.createLinearGradient(0,0,200,200);
-  gradient.addColorStop(0, '#ff4d4d');
-  gradient.addColorStop(1, '#b30000');
-
-  window.overallChart = new Chart(ctx,{
-    type:'doughnut',
-    data:{
-      labels:["Average Rating","Remaining"],
-      datasets:[{
-        data:[avg,remaining],
-        backgroundColor:[gradient,'#e0e0e0'],
-        borderWidth:1
-      }]
-    },
-    options:{
-      cutout:'60%',
-      rotation:-90,
-      circumference:360,
-      plugins:{legend:{display:false}},
-      animation:{animateRotate:true,animateScale:true}
-    }
+  const perQ = computePerQuestion(data);
+  const container = document.getElementById("perQuestionRatings");
+  container.innerHTML = "";
+  QUESTIONS.forEach(q=>{
+    const div = document.createElement("div");
+    div.classList.add("small-rating","card");
+    div.innerHTML=`<strong>${q.replace(/_/g," ").replace("Q","Question ")}</strong>: ${perQ[q]} ⭐`;
+    container.appendChild(div);
   });
 }
 
@@ -105,8 +126,7 @@ function renderTable(data){
   data.forEach(d=>{
     const tr = document.createElement("tr");
     if(!previousIDs.has(d.Timestamp)) tr.classList.add("highlight");
-    tr.title = d.Comments; // Show full comment on hover
-    tr.innerHTML=`<td class="comments">${d.Comments}</td>`;
+    tr.innerHTML=`<td>${d.Timestamp}</td><td>${d.Comments}</td>`;
     tbody.appendChild(tr);
     newIDs.add(d.Timestamp);
   });
