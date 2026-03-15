@@ -4,59 +4,93 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy Queen Feedback Form</title>
+<title>Dairy Queen Customer Feedback</title>
 
 <style>
 
 body{
 font-family:Arial, sans-serif;
-background:#f5f5f5;
+background:#f4f6f9;
 margin:0;
 padding:20px;
-text-align:center;
 }
 
 .container{
-max-width:600px;
+max-width:650px;
 margin:auto;
 background:white;
 padding:25px;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.1);
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.1);
 }
 
 h1{
+text-align:center;
 color:#d71920;
 }
 
-p{
-color:#333;
+.subtitle{
+text-align:center;
+margin-bottom:20px;
 }
 
-label{
-display:block;
-margin-top:15px;
-font-weight:bold;
-text-align:left;
+.progress-bar{
+width:100%;
+background:#ddd;
+border-radius:20px;
+margin-bottom:25px;
 }
 
-select,textarea{
+.progress{
+height:10px;
+width:0%;
+background:#d71920;
+border-radius:20px;
+transition:0.3s;
+}
+
+.question{
+margin-bottom:20px;
+}
+
+.star-rating{
+display:flex;
+gap:8px;
+font-size:28px;
+cursor:pointer;
+}
+
+.star{
+color:#ccc;
+}
+
+.star.active{
+color:#f5b301;
+}
+
+textarea{
 width:100%;
 padding:10px;
-margin-top:5px;
-border-radius:5px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+select{
+width:100%;
+padding:10px;
+border-radius:6px;
 border:1px solid #ccc;
 }
 
 button{
-margin-top:20px;
-padding:12px;
 width:100%;
+padding:14px;
 background:#d71920;
 color:white;
 border:none;
-border-radius:5px;
+border-radius:6px;
 font-size:16px;
+margin-top:20px;
 cursor:pointer;
 }
 
@@ -64,13 +98,14 @@ button:hover{
 background:#b9151a;
 }
 
-.scale{
-font-size:13px;
-color:#555;
-margin-top:5px;
+.thankyou{
+display:none;
+text-align:center;
+padding:40px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -78,123 +113,84 @@ margin-top:5px;
 <div class="container">
 
 <h1>Dairy Queen Feedback</h1>
+<p class="subtitle">Rate your experience and receive a <b>FREE Ice Cream Cone</b></p>
 
-<p>Answer this short survey and get a <b>FREE Ice Cream Cone</b>!</p>
+<div class="progress-bar">
+<div class="progress" id="progress"></div>
+</div>
 
 <form id="feedbackForm">
 
-<label>1. How satisfied are you with the overall quality of the product?</label>
-<select name="q1" required>
-<option value="">Select Rating</option>
-<option value="1">1 - Very Dissatisfied</option>
-<option value="2">2 - Dissatisfied</option>
-<option value="3">3 - Neutral</option>
-<option value="4">4 - Satisfied</option>
-<option value="5">5 - Very Satisfied</option>
-</select>
+<div class="question">
+<label>1. Product Quality</label>
+<div class="star-rating" data-name="q1"></div>
+</div>
 
-<label>2. How satisfied are you with the taste of the food or dessert?</label>
-<select name="q2" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>2. Taste of Food</label>
+<div class="star-rating" data-name="q2"></div>
+</div>
 
-<label>3. How satisfied are you with the variety of menu items?</label>
-<select name="q3" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>3. Menu Variety</label>
+<div class="star-rating" data-name="q3"></div>
+</div>
 
-<label>4. How satisfied are you with the speed of service?</label>
-<select name="q4" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>4. Speed of Service</label>
+<div class="star-rating" data-name="q4"></div>
+</div>
 
-<label>5. How satisfied are you with the friendliness of the staff?</label>
-<select name="q5" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>5. Staff Friendliness</label>
+<div class="star-rating" data-name="q5"></div>
+</div>
 
-<label>6. How satisfied are you with the accuracy of your order?</label>
-<select name="q6" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>6. Order Accuracy</label>
+<div class="star-rating" data-name="q6"></div>
+</div>
 
-<label>7. How satisfied are you with the cleanliness of the store?</label>
-<select name="q7" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>7. Store Cleanliness</label>
+<div class="star-rating" data-name="q7"></div>
+</div>
 
-<label>8. How satisfied are you with the overall ambiance of the store?</label>
-<select name="q8" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>8. Store Ambience</label>
+<div class="star-rating" data-name="q8"></div>
+</div>
 
-<label>9. How satisfied are you with the value for money?</label>
-<select name="q9" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>9. Value for Money</label>
+<div class="star-rating" data-name="q9"></div>
+</div>
 
-<label>10. How satisfied are you with your overall experience at Dairy Queen?</label>
-<select name="q10" required>
-<option value="">Select Rating</option>
-<option value="1">1</option>
-<option value="2">2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-<option value="5">5</option>
-</select>
+<div class="question">
+<label>10. Overall Experience</label>
+<div class="star-rating" data-name="q10"></div>
+</div>
 
-<label>Would you recommend Dairy Queen to others?</label>
+<label>Would you recommend Dairy Queen?</label>
 <select name="recommend">
 <option value="Yes">Yes</option>
 <option value="No">No</option>
 </select>
 
-<label>Additional Comments or Suggestions</label>
-<textarea name="comments" rows="4"></textarea>
+<label>Additional Comments</label>
+<textarea name="comments"></textarea>
 
 <button type="submit">Submit Feedback</button>
 
 </form>
+
+<div class="thankyou" id="thankyou">
+
+<h2>Thank You!</h2>
+<p>Your feedback helps us improve.</p>
+<p>Please claim your <b>FREE Ice Cream Cone</b> at the counter.</p>
+
+</div>
 
 </div>
 
@@ -202,25 +198,87 @@ margin-top:5px;
 
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwXE2wRgtiglQTPAs0DXnEsr-5ywN5Dhrg39GgO-ce96vbLTqL0EadcO6l73i-dC-979Q/exec";
 
+let answers={};
+
+function createStars(){
+
+document.querySelectorAll(".star-rating").forEach(container=>{
+
+let name=container.dataset.name;
+
+for(let i=1;i<=5;i++){
+
+let star=document.createElement("span");
+star.innerHTML="★";
+star.classList.add("star");
+
+star.onclick=()=>{
+
+answers[name]=i;
+
+container.querySelectorAll(".star").forEach((s,index)=>{
+s.classList.toggle("active",index<i);
+});
+
+updateProgress();
+
+};
+
+container.appendChild(star);
+
+}
+
+});
+
+}
+
+createStars();
+
+function updateProgress(){
+
+let total=10;
+
+let answered=Object.keys(answers).length;
+
+let percent=(answered/total)*100;
+
+document.getElementById("progress").style.width=percent+"%";
+
+}
+
 document.getElementById("feedbackForm").addEventListener("submit",function(e){
 
 e.preventDefault();
 
+if(Object.keys(answers).length<10){
+
+alert("Please answer all questions");
+
+return;
+
+}
+
+let formData=new FormData();
+
+for(let key in answers){
+
+formData.append(key,answers[key]);
+
+}
+
+formData.append("recommend",document.querySelector("[name=recommend]").value);
+
+formData.append("comments",document.querySelector("[name=comments]").value);
+
 fetch(SCRIPT_URL,{
 method:"POST",
-body:new FormData(this)
+body:formData
 })
-.then(response=>response.json())
-.then(data=>{
+.then(res=>res.json())
+.then(()=>{
 
-alert("Thank you for your feedback! Please claim your FREE Ice Cream Cone.");
-
-document.getElementById("feedbackForm").reset();
-
-})
-.catch(error=>{
-
-alert("Submission failed. Please try again.");
+document.getElementById("feedbackForm").style.display="none";
+document.getElementById("thankyou").style.display="block";
 
 });
 
