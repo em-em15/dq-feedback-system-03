@@ -15,6 +15,7 @@ table{width:100%;margin-top:20px;border-collapse:collapse;}
 th,td{padding:8px;border:1px solid #ddd;font-size:13px;}
 th{background:#d71920;color:white;}
 tr:nth-child(even){background:#f9f9f9;}
+.comments{text-align:left;white-space:pre-wrap;}
 </style>
 </head>
 <body>
@@ -49,7 +50,7 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // replace with your Apps Script URL
+const API_URL = "YOUR_DOGET_WEBAPP_URL"; // replace with your Apps Script URL
 
 async function fetchData(){
   const res = await fetch(API_URL);
@@ -107,7 +108,7 @@ function renderTable(data){
   data.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
   data.forEach(d=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${d.Timestamp}</td><td>${d.Comments}</td><td>${d.Average.toFixed(2)}</td>`;
+    tr.innerHTML=`<td>${d.Timestamp}</td><td class="comments">${d.Comments}</td><td>${d.Average.toFixed(2)}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -124,7 +125,6 @@ updateDashboard();
 
 // Refresh every 10 seconds
 setInterval(updateDashboard,10000);
-
 </script>
 </body>
 </html>
