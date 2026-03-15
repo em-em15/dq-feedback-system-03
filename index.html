@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,66 +13,58 @@ label{display:block;margin-top:18px;font-weight:bold;}
 .star-rating{display:flex;gap:6px;font-size:28px;cursor:pointer;margin-top:5px;}
 .star{color:#ccc;}
 .star.active{color:#f5b301;}
-textarea{width:100%;padding:10px;margin-top:5px;border-radius:5px;border:1px solid #ccc;}
+textarea,select{width:100%;padding:10px;margin-top:5px;border-radius:5px;border:1px solid #ccc;}
 button{margin-top:20px;width:100%;padding:14px;background:#d71920;color:white;border:none;border-radius:6px;font-size:16px;cursor:pointer;}
 button:hover{background:#b51518;}
 .thankyou{display:none;text-align:center;padding:40px;}
 </style>
 </head>
 <body>
+
 <div class="container">
 <h2>Dairy Queen Feedback</h2>
 <p style="text-align:center;">Rate your experience and receive a <b>FREE Ice Cream Cone</b>!</p>
 
 <form id="feedbackForm">
-<!-- Questions 1–10 -->
+<!-- Repeat this block for Q1-Q10 -->
 <div class="question">
-<label>1. How satisfied are you with the overall quality of the product you purchased?</label>
+<label>1. Overall product quality?</label>
 <div class="star-rating" data-name="q1"></div>
 </div>
-
 <div class="question">
-<label>2. How satisfied are you with the taste of the food or dessert?</label>
+<label>2. Taste?</label>
 <div class="star-rating" data-name="q2"></div>
 </div>
-
 <div class="question">
-<label>3. How satisfied are you with the variety of menu items?</label>
+<label>3. Menu variety?</label>
 <div class="star-rating" data-name="q3"></div>
 </div>
-
 <div class="question">
-<label>4. How satisfied are you with the speed of service?</label>
+<label>4. Speed of service?</label>
 <div class="star-rating" data-name="q4"></div>
 </div>
-
 <div class="question">
-<label>5. How satisfied are you with the friendliness of the staff?</label>
+<label>5. Staff friendliness?</label>
 <div class="star-rating" data-name="q5"></div>
 </div>
-
 <div class="question">
-<label>6. How satisfied are you with the accuracy of your order?</label>
+<label>6. Order accuracy?</label>
 <div class="star-rating" data-name="q6"></div>
 </div>
-
 <div class="question">
-<label>7. How satisfied are you with the cleanliness of the store?</label>
+<label>7. Cleanliness?</label>
 <div class="star-rating" data-name="q7"></div>
 </div>
-
 <div class="question">
-<label>8. How satisfied are you with the store’s ambiance?</label>
+<label>8. Store ambiance?</label>
 <div class="star-rating" data-name="q8"></div>
 </div>
-
 <div class="question">
-<label>9. How satisfied are you with the value for money?</label>
+<label>9. Value for money?</label>
 <div class="star-rating" data-name="q9"></div>
 </div>
-
 <div class="question">
-<label>10. How satisfied are you with your overall experience?</label>
+<label>10. Overall experience?</label>
 <div class="star-rating" data-name="q10"></div>
 </div>
 
@@ -92,46 +85,37 @@ button:hover{background:#b51518;}
 <p>Your feedback helps us improve.</p>
 <p>Please claim your <b>FREE Ice Cream Cone</b> at the counter.</p>
 </div>
-
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXE2wRgtiglQTPAs0DXnEsr-5ywN5Dhrg39GgO-ce96vbLTqL0EadcO6l73i-dC-979Q/exec"; // Replace with Apps Script Web App URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd-nn1_iYHPz_VgEqbLhhBvBXoFqYtgv_EnVfpEy7H1yjwaBrHjeRJx3q-PqnahRAQQw/exec"; // Replace with Apps Script Web App URL
 let answers = {};
 
-function createStars(){
-  document.querySelectorAll(".star-rating").forEach(container=>{
-    let name = container.dataset.name;
-    for(let i=1;i<=5;i++){
-      let star=document.createElement("span");
-      star.innerHTML="★";
-      star.classList.add("star");
-      star.addEventListener("click", ()=>{
-        answers[name]=i;
-        container.querySelectorAll(".star").forEach((s,index)=>s.classList.toggle("active",index<i));
-      });
-      container.appendChild(star);
-    }
-  });
-}
-
-createStars();
+document.querySelectorAll(".star-rating").forEach(container=>{
+  let name = container.dataset.name;
+  for(let i=1;i<=5;i++){
+    let star=document.createElement("span");
+    star.innerHTML="★";
+    star.classList.add("star");
+    star.addEventListener("click", ()=>{
+      answers[name]=i;
+      container.querySelectorAll(".star").forEach((s,index)=>s.classList.toggle("active",index<i));
+    });
+    container.appendChild(star);
+  }
+});
 
 document.getElementById("feedbackForm").addEventListener("submit", function(e){
   e.preventDefault();
-  // Ensure all 10 questions answered
-  if(Object.keys(answers).length < 10){ alert("Please answer all 10 questions."); return; }
+  if(Object.keys(answers).length<10){ alert("Please answer all 10 questions."); return; }
 
   let formData = new FormData(this);
   for(let key in answers){ formData.append(key, answers[key]); }
 
-  let object = {};
-  formData.forEach((value,key)=>object[key]=value);
+  let obj = {};
+  formData.forEach((value,key)=>obj[key]=value);
 
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    body: JSON.stringify(object)
-  })
+  fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(obj)})
   .then(res=>res.json())
   .then(data=>{
     document.getElementById("feedbackForm").style.display="none";
