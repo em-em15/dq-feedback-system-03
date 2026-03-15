@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dairy Queen Feedback Dashboard V3</title>
+<title>Dairy Queen Feedback Admin Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body {font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;}
@@ -16,7 +16,7 @@ h2{text-align:center;color:#d71920;margin-bottom:10px;}
 .table-container {margin-top:40px; overflow-x:auto;}
 table {width:100%;border-collapse:collapse;}
 th,td {padding:8px 12px;border:1px solid #ccc;text-align:center;font-size:14px;}
-th {background:#d71920;color:white;cursor:pointer;}
+th {background:#d71920;color:white;}
 tr:nth-child(even){background:#f9f9f9;}
 .highlight{background:#ffeeba;}
 </style>
@@ -24,15 +24,15 @@ tr:nth-child(even){background:#f9f9f9;}
 <body>
 
 <div class="container">
-<h2>Dairy Queen Feedback Dashboard V3</h2>
+<h2>Dairy Queen Feedback Admin Dashboard</h2>
 <div class="stats" id="totalCount">Total Submissions: 0</div>
 
 <div class="charts-grid">
   <div class="chart-box">
-    <canvas id="avgChart"></canvas>
+    <canvas id="miniBarChart"></canvas>
   </div>
   <div class="chart-box">
-    <canvas id="miniBarChart"></canvas>
+    <canvas id="avgChart"></canvas>
   </div>
 </div>
 
@@ -41,20 +41,20 @@ tr:nth-child(even){background:#f9f9f9;}
 <table id="dataTable">
 <thead>
 <tr>
-<th onclick="sortTable('Timestamp')">Timestamp</th>
-<th onclick="sortTable('Q1_ProductQuality')">Q1_ProductQuality</th>
-<th onclick="sortTable('Q2_Taste')">Q2_Taste</th>
-<th onclick="sortTable('Q3_MenuVariety')">Q3_MenuVariety</th>
-<th onclick="sortTable('Q4_ServiceSpeed')">Q4_ServiceSpeed</th>
-<th onclick="sortTable('Q5_StaffFriendliness')">Q5_StaffFriendliness</th>
-<th onclick="sortTable('Q6_OrderAccuracy')">Q6_OrderAccuracy</th>
-<th onclick="sortTable('Q7_Cleanliness')">Q7_Cleanliness</th>
-<th onclick="sortTable('Q8_StoreAmbience')">Q8_StoreAmbience</th>
-<th onclick="sortTable('Q9_ValueForMoney')">Q9_ValueForMoney</th>
-<th onclick="sortTable('Q10_OverallExperience')">Q10_OverallExperience</th>
-<th onclick="sortTable('Recommend')">Recommend</th>
+<th>Timestamp</th>
+<th>Q1_ProductQuality</th>
+<th>Q2_Taste</th>
+<th>Q3_MenuVariety</th>
+<th>Q4_ServiceSpeed</th>
+<th>Q5_StaffFriendliness</th>
+<th>Q6_OrderAccuracy</th>
+<th>Q7_Cleanliness</th>
+<th>Q8_StoreAmbience</th>
+<th>Q9_ValueForMoney</th>
+<th>Q10_OverallExperience</th>
+<th>Recommend</th>
 <th>Comments</th>
-<th onclick="sortTable('Average_Rating')">Average_Rating</th>
+<th>Average_Rating</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
@@ -63,68 +63,70 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwd-nn1_iYHPz_VgEqbLhhBvBXoFqYtgv_EnVfpEy7H1yjwaBrHjeRJx3q-PqnahRAQQw/exec"; // Replace with your Apps Script doGet URL
-let feedbackData = [];
+const SHEET_URL = "YOUR_DOGET_WEBAPP_URL"; // Replace with your published doGet URL
 let previousDataLength = 0;
+let feedbackData = [];
 
-// Fetch Google Sheets data
-async function fetchData() {
-  const res = await fetch(SHEET_URL);
-  const data = await res.json();
-  // Sort by Timestamp latest first
-  data.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
-  feedbackData = data;
-  return data;
+// Fetch all submissions from Google Sheets
+async function fetchFeedbackData(){
+  try {
+    const res = await fetch(SHEET_URL);
+    const data = await res.json();
+    // Sort newest first
+    data.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
+    feedbackData = data;
+    renderDashboard();
+  } catch(err){
+    console.error("Error fetching data:", err);
+  }
 }
 
 // Calculate averages per question
 function calculateAverages(data){
-  const averages = [];
   const questionKeys = [
     'Q1_ProductQuality','Q2_Taste','Q3_MenuVariety','Q4_ServiceSpeed',
     'Q5_StaffFriendliness','Q6_OrderAccuracy','Q7_Cleanliness','Q8_StoreAmbience',
     'Q9_ValueForMoney','Q10_OverallExperience'
   ];
-  questionKeys.forEach(key=>{
-    let sum=0,count=0;
+  return questionKeys.map(key=>{
+    let sum=0, count=0;
     data.forEach(r=>{
-      let val = Number(r[key]);
-      if(!isNaN(val)){sum+=val;count++;}
+      const val = Number(r[key]);
+      if(!isNaN(val)){ sum+=val; count++; }
     });
-    averages.push(count? (sum/count).toFixed(2) : 0);
+    return count? (sum/count).toFixed(2):0;
   });
-  return averages;
 }
 
-// Render charts
+// Render mini bar chart and overall average chart
 function renderCharts(data){
   const averages = calculateAverages(data);
-  const questionLabels = ["Q1 Product","Q2 Taste","Q3 Menu","Q4 Service","Q5 Staff","Q6 Order","Q7 Clean","Q8 Ambience","Q9 Value","Q10 Overall"];
+  const labels = ["Q1 Product","Q2 Taste","Q3 Menu","Q4 Service","Q5 Staff","Q6 Order","Q7 Clean","Q8 Ambience","Q9 Value","Q10 Overall"];
 
   // Mini bar chart
   const ctxMini = document.getElementById("miniBarChart").getContext("2d");
   if(window.miniChart) window.miniChart.destroy();
   window.miniChart = new Chart(ctxMini,{
     type:'bar',
-    data:{labels:questionLabels,datasets:[{label:"Avg Rating",data:averages,backgroundColor:'#d71920'}]},
-    options:{indexAxis:'y',scales:{x:{min:0,max:5}}}
+    data:{labels, datasets:[{label:"Avg Rating", data:averages, backgroundColor:'#d71920'}]},
+    options:{indexAxis:'y', scales:{x:{min:0,max:5}}}
   });
 
-  // Overall average doughnut
+  // Overall average doughnut chart
   const overallAvg = (averages.reduce((a,b)=>a+Number(b),0)/averages.length).toFixed(2);
   const ctxAvg = document.getElementById("avgChart").getContext("2d");
   if(window.avgChart) window.avgChart.destroy();
   window.avgChart = new Chart(ctxAvg,{
     type:'doughnut',
-    data:{labels:["Average Rating"],datasets:[{data:[overallAvg,5-overallAvg],backgroundColor:['#d71920','#eee']}]},
+    data:{labels:["Average Rating"], datasets:[{data:[overallAvg,5-overallAvg], backgroundColor:['#d71920','#eee']}]},
     options:{plugins:{tooltip:{enabled:true}}}
   });
 }
 
-// Render table
+// Render full table
 function renderTable(data){
   const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
+  tbody.innerHTML="";
   data.forEach((row,index)=>{
     const tr = document.createElement("tr");
     if(index >= previousDataLength) tr.classList.add("highlight");
@@ -150,26 +152,17 @@ function renderTable(data){
   document.getElementById("totalCount").innerText = Total Submissions: ${data.length};
 }
 
-// Sort table dynamically
-function sortTable(column){
-  feedbackData.sort((a,b)=>{
-    if(!isNaN(a[column]) && !isNaN(b[column])) return Number(b[column])-Number(a[column]);
-    return new Date(b[column]) - new Date(a[column]);
-  });
-  renderTable(feedbackData);
-}
-
-// Refresh dashboard
-async function refreshDashboard(){
-  await fetchData();
+// Render everything
+function renderDashboard(){
   renderCharts(feedbackData);
   renderTable(feedbackData);
 }
 
 // Initial load
-refreshDashboard();
-setInterval(refreshDashboard,15000);
-</script>
+fetchFeedbackData();
 
+// Auto-refresh every 15 seconds
+setInterval(fetchFeedbackData, 15000);
+</script>
 </body>
 </html>
