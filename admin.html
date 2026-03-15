@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dairy Queen Feedback Admin Dashboard</title>
+<title>Dairy Queen Admin Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body {font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;}
@@ -22,6 +22,7 @@ tr:nth-child(even){background:#f9f9f9;}
 </style>
 </head>
 <body>
+
 <div class="container">
 <h2>Dairy Queen Feedback Admin Dashboard</h2>
 <div class="stats" id="totalCount">Total Submissions: 0</div>
@@ -62,21 +63,30 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
+// Replace with your deployed Apps Script doGet URL
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec";
+
 let feedbackData = [];
 let previousDataLength = 0;
 
-// Fetch data from Apps Script doGet
-function fetchFeedbackData(){
-  google.script.run.withSuccessHandler(function(data){
+// Fetch feedback data
+async function fetchFeedbackData(){
+  try {
+    const res = await fetch(SHEET_URL);
+    const data = await res.json();
+    // Sort newest first
+    data.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
     feedbackData = data;
     renderDashboard();
-  }).getFeedbackData();
+  } catch(err){
+    console.error("Error fetching data:", err);
+  }
 }
 
-// Calculate averages for chart
+// Calculate averages
 function calculateAverages(data){
-  const questionKeys = ['Q1_ProductQuality','Q2_Taste','Q3_MenuVariety','Q4_ServiceSpeed','Q5_StaffFriendliness','Q6_OrderAccuracy','Q7_Cleanliness','Q8_StoreAmbience','Q9_ValueForMoney','Q10_OverallExperience'];
-  return questionKeys.map(key=>{
+  const keys = ['Q1_ProductQuality','Q2_Taste','Q3_MenuVariety','Q4_ServiceSpeed','Q5_StaffFriendliness','Q6_OrderAccuracy','Q7_Cleanliness','Q8_StoreAmbience','Q9_ValueForMoney','Q10_OverallExperience'];
+  return keys.map(key=>{
     let sum=0,count=0;
     data.forEach(r=>{
       const val = Number(r[key]);
@@ -100,7 +110,7 @@ function renderCharts(data){
     options:{indexAxis:'y', scales:{x:{min:0,max:5}}}
   });
 
-  // Overall average chart
+  // Overall average doughnut chart
   const overallAvg = (averages.reduce((a,b)=>a+Number(b),0)/averages.length).toFixed(2);
   const ctxAvg = document.getElementById("avgChart").getContext("2d");
   if(window.avgChart) window.avgChart.destroy();
@@ -149,7 +159,7 @@ function renderDashboard(){
 // Initial load
 fetchFeedbackData();
 
-// Auto-refresh every 15 seconds
+// Auto-refresh every 15 sec
 setInterval(fetchFeedbackData,15000);
 </script>
 </body>
