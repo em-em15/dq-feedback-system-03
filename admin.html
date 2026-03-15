@@ -22,7 +22,6 @@ tr:nth-child(even){background:#f9f9f9;}
 </style>
 </head>
 <body>
-
 <div class="container">
 <h2>Dairy Queen Feedback Admin Dashboard</h2>
 <div class="stats" id="totalCount">Total Submissions: 0</div>
@@ -63,42 +62,31 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwd-nn1_iYHPz_VgEqbLhhBvBXoFqYtgv_EnVfpEy7H1yjwaBrHjeRJx3q-PqnahRAQQw/exec"; // Replace with your published doGet URL
-let previousDataLength = 0;
 let feedbackData = [];
+let previousDataLength = 0;
 
-// Fetch all submissions from Google Sheets
-async function fetchFeedbackData(){
-  try {
-    const res = await fetch(SHEET_URL);
-    const data = await res.json();
-    // Sort newest first
-    data.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
+// Fetch data from Apps Script doGet
+function fetchFeedbackData(){
+  google.script.run.withSuccessHandler(function(data){
     feedbackData = data;
     renderDashboard();
-  } catch(err){
-    console.error("Error fetching data:", err);
-  }
+  }).getFeedbackData();
 }
 
-// Calculate averages per question
+// Calculate averages for chart
 function calculateAverages(data){
-  const questionKeys = [
-    'Q1_ProductQuality','Q2_Taste','Q3_MenuVariety','Q4_ServiceSpeed',
-    'Q5_StaffFriendliness','Q6_OrderAccuracy','Q7_Cleanliness','Q8_StoreAmbience',
-    'Q9_ValueForMoney','Q10_OverallExperience'
-  ];
+  const questionKeys = ['Q1_ProductQuality','Q2_Taste','Q3_MenuVariety','Q4_ServiceSpeed','Q5_StaffFriendliness','Q6_OrderAccuracy','Q7_Cleanliness','Q8_StoreAmbience','Q9_ValueForMoney','Q10_OverallExperience'];
   return questionKeys.map(key=>{
-    let sum=0, count=0;
+    let sum=0,count=0;
     data.forEach(r=>{
       const val = Number(r[key]);
-      if(!isNaN(val)){ sum+=val; count++; }
+      if(!isNaN(val)){sum+=val;count++;}
     });
     return count? (sum/count).toFixed(2):0;
   });
 }
 
-// Render mini bar chart and overall average chart
+// Render charts
 function renderCharts(data){
   const averages = calculateAverages(data);
   const labels = ["Q1 Product","Q2 Taste","Q3 Menu","Q4 Service","Q5 Staff","Q6 Order","Q7 Clean","Q8 Ambience","Q9 Value","Q10 Overall"];
@@ -108,22 +96,22 @@ function renderCharts(data){
   if(window.miniChart) window.miniChart.destroy();
   window.miniChart = new Chart(ctxMini,{
     type:'bar',
-    data:{labels, datasets:[{label:"Avg Rating", data:averages, backgroundColor:'#d71920'}]},
+    data:{labels, datasets:[{label:"Average Rating",data:averages,backgroundColor:'#d71920'}]},
     options:{indexAxis:'y', scales:{x:{min:0,max:5}}}
   });
 
-  // Overall average doughnut chart
+  // Overall average chart
   const overallAvg = (averages.reduce((a,b)=>a+Number(b),0)/averages.length).toFixed(2);
   const ctxAvg = document.getElementById("avgChart").getContext("2d");
   if(window.avgChart) window.avgChart.destroy();
   window.avgChart = new Chart(ctxAvg,{
     type:'doughnut',
-    data:{labels:["Average Rating"], datasets:[{data:[overallAvg,5-overallAvg], backgroundColor:['#d71920','#eee']}]},
+    data:{labels:["Average Rating"],datasets:[{data:[overallAvg,5-overallAvg],backgroundColor:['#d71920','#eee']}]},
     options:{plugins:{tooltip:{enabled:true}}}
   });
 }
 
-// Render full table
+// Render table
 function renderTable(data){
   const tbody = document.getElementById("tableBody");
   tbody.innerHTML="";
@@ -152,7 +140,7 @@ function renderTable(data){
   document.getElementById("totalCount").innerText = Total Submissions: ${data.length};
 }
 
-// Render everything
+// Render dashboard
 function renderDashboard(){
   renderCharts(feedbackData);
   renderTable(feedbackData);
@@ -162,7 +150,7 @@ function renderDashboard(){
 fetchFeedbackData();
 
 // Auto-refresh every 15 seconds
-setInterval(fetchFeedbackData, 15000);
+setInterval(fetchFeedbackData,15000);
 </script>
 </body>
 </html>
