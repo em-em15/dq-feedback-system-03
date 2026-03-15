@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dairy Queen Customer Feedback</title>
 
 <style>
 
 body{
-font-family:Arial, sans-serif;
-background:#f4f6f9;
-margin:0;
+font-family:Arial;
+background:#f4f4f4;
 padding:20px;
 }
 
@@ -20,69 +19,31 @@ max-width:650px;
 margin:auto;
 background:white;
 padding:25px;
-border-radius:12px;
-box-shadow:0 6px 18px rgba(0,0,0,0.1);
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-h1{
+h2{
 text-align:center;
 color:#d71920;
 }
 
-.subtitle{
-text-align:center;
-margin-bottom:20px;
+label{
+display:block;
+margin-top:18px;
+font-weight:bold;
 }
 
-.progress-bar{
-width:100%;
-background:#ddd;
-border-radius:20px;
-margin-bottom:25px;
-}
-
-.progress{
-height:10px;
-width:0%;
-background:#d71920;
-border-radius:20px;
-transition:0.3s;
-}
-
-.question{
-margin-bottom:20px;
-}
-
-.star-rating{
-display:flex;
-gap:8px;
-font-size:28px;
-cursor:pointer;
-}
-
-.star{
-color:#ccc;
-}
-
-.star.active{
-color:#f5b301;
-}
-
-textarea{
+select,textarea{
 width:100%;
 padding:10px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-select{
-width:100%;
-padding:10px;
-border-radius:6px;
+margin-top:6px;
+border-radius:5px;
 border:1px solid #ccc;
 }
 
 button{
+margin-top:25px;
 width:100%;
 padding:14px;
 background:#d71920;
@@ -90,18 +51,17 @@ color:white;
 border:none;
 border-radius:6px;
 font-size:16px;
-margin-top:20px;
 cursor:pointer;
 }
 
 button:hover{
-background:#b9151a;
+background:#b51518;
 }
 
-.thankyou{
-display:none;
-text-align:center;
-padding:40px;
+.scale{
+font-size:12px;
+color:#555;
+margin-bottom:5px;
 }
 
 </style>
@@ -112,183 +72,183 @@ padding:40px;
 
 <div class="container">
 
-<h1>Dairy Queen Feedback</h1>
-<p class="subtitle">Rate your experience and receive a <b>FREE Ice Cream Cone</b></p>
+<h2>Dairy Queen Customer Feedback</h2>
 
-<div class="progress-bar">
-<div class="progress" id="progress"></div>
-</div>
+<p style="text-align:center;">
+Rate your experience and receive a <b>FREE Ice Cream Cone</b>.
+</p>
 
 <form id="feedbackForm">
 
-<div class="question">
-<label>1. How satisfied are you with the overall quality of the product?</label>
-<div class="star-rating" data-name="q1"></div>
-</div>
+<label>1. How satisfied are you with the overall quality of the product you purchased?</label>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q1" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
+
 <label>2. How satisfied are you with the taste of the food or dessert?</label>
-<div class="star-rating" data-name="q2"></div>
-</div>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q2" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
-<label>3. How satisfied are you with the variety of menu items?</label>
-<div class="star-rating" data-name="q3"></div>
-</div>
 
-<div class="question">
+<label>3. How satisfied are you with the variety of menu items available?</label>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q3" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+
+
 <label>4. How satisfied are you with the speed of service?</label>
-<div class="star-rating" data-name="q4"></div>
-</div>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q4" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
+
 <label>5. How satisfied are you with the friendliness of the staff?</label>
-<div class="star-rating" data-name="q5"></div>
-</div>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q5" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
+
 <label>6. How satisfied are you with the accuracy of your order?</label>
-<div class="star-rating" data-name="q6"></div>
-</div>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q6" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
+
 <label>7. How satisfied are you with the cleanliness of the store?</label>
-<div class="star-rating" data-name="q7"></div>
-</div>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q7" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
-<label>8. How satisfied are you with the overall ambiance of the store?</label>
-<div class="star-rating" data-name="q8"></div>
-</div>
 
-<div class="question">
-<label>9. How satisfied are you with the value for money?</label>
-<div class="star-rating" data-name="q9"></div>
-</div>
+<label>8. How satisfied are you with the overall ambiance and comfort of the store?</label>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q8" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
 
-<div class="question">
-<label>10. How satisfied are you with your overall experience at Dairy Queen?</label>
-<div class="star-rating" data-name="q10"></div>
-</div>
 
-<label>Would you recommend Dairy Queen?</label>
+<label>9. How satisfied are you with the value for money of the product?</label>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q9" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+
+
+<label>10. How satisfied are you with your overall experience at Dairy Queen today?</label>
+<div class="scale">1 = Very Dissatisfied | 5 = Very Satisfied</div>
+<select name="q10" required>
+<option value="">Select Rating</option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+
+
+<label>Would you recommend Dairy Queen to others?</label>
 <select name="recommend">
 <option value="Yes">Yes</option>
 <option value="No">No</option>
 </select>
 
-<label>Additional Comments</label>
-<textarea name="comments"></textarea>
+
+<label>Additional Comments or Suggestions</label>
+<textarea name="comments" rows="4"></textarea>
+
 
 <button type="submit">Submit Feedback</button>
 
 </form>
 
-<div class="thankyou" id="thankyou">
-
-<h2>Thank You!</h2>
-<p>Your feedback helps us improve.</p>
-<p>Please claim your <b>FREE Ice Cream Cone</b> at the counter.</p>
-
 </div>
 
-</div>
 
 <script>
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwXE2wRgtiglQTPAs0DXnEsr-5ywN5Dhrg39GgO-ce96vbLTqL0EadcO6l73i-dC-979Q/exec";
+const scriptURL="https://script.google.com/macros/s/AKfycbwXE2wRgtiglQTPAs0DXnEsr-5ywN5Dhrg39GgO-ce96vbLTqL0EadcO6l73i-dC-979Q/exec";
 
-let answers = {};
-
-function createStars(){
-
-document.querySelectorAll(".star-rating").forEach(container=>{
-
-let name = container.dataset.name;
-
-for(let i=1;i<=5;i++){
-
-let star = document.createElement("span");
-star.innerHTML = "★";
-star.classList.add("star");
-
-star.addEventListener("click",function(){
-
-answers[name] = i;
-
-container.querySelectorAll(".star").forEach((s,index)=>{
-s.classList.toggle("active",index<i);
-});
-
-updateProgress();
-
-});
-
-container.appendChild(star);
-
-}
-
-});
-
-}
-
-createStars();
-
-function updateProgress(){
-
-let total = 10;
-let answered = Object.keys(answers).length;
-
-let percent = (answered/total)*100;
-
-document.getElementById("progress").style.width = percent + "%";
-
-}
-
-document.getElementById("feedbackForm").addEventListener("submit", function(e){
+document.getElementById("feedbackForm").addEventListener("submit",function(e){
 
 e.preventDefault();
 
-if(Object.keys(answers).length < 10){
+let formData=new FormData(this);
 
-alert("Please answer all 10 questions before submitting.");
+let object={};
 
-return;
+formData.forEach((value,key)=>object[key]=value);
 
-}
-
-const submitBtn = document.querySelector("button");
-submitBtn.innerText = "Submitting...";
-submitBtn.disabled = true;
-
-let formData = new FormData();
-
-for(let key in answers){
-formData.append(key,answers[key]);
-}
-
-formData.append("recommend",document.querySelector("[name=recommend]").value);
-formData.append("comments",document.querySelector("[name=comments]").value);
-
-fetch(SCRIPT_URL,{
+fetch(scriptURL,{
 method:"POST",
-body:formData
+body:JSON.stringify(object)
 })
-.then(response => response.json())
-.then(data => {
+.then(res=>res.json())
+.then(data=>{
 
-document.getElementById("feedbackForm").style.display = "none";
-document.getElementById("thankyou").style.display = "block";
+alert("Thank you for your feedback! Please claim your FREE Ice Cream Cone.");
+
+document.getElementById("feedbackForm").reset();
 
 })
-.catch(error => {
-
-alert("Submission failed. Please check your internet connection.");
-submitBtn.innerText = "Submit Feedback";
-submitBtn.disabled = false;
-
-});
+.catch(err=>alert("Submission failed. Please try again."));
 
 });
 
 </script>
+
+</body>
+</html>
