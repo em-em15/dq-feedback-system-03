@@ -50,7 +50,7 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // replace with your Apps Script URL
+const API_URL = "YOUR_DOGET_WEBAPP_URL"; // replace with your Apps Script URL
 
 async function fetchData(){
   const res = await fetch(API_URL);
@@ -58,7 +58,7 @@ async function fetchData(){
   return data.map(r => ({
     Timestamp: r.Timestamp || "",
     Comments: r.Comments || "",
-    Average: Number(r.Average_Rating) || 0,
+    Average: Number(r.Average_Rating)||0,
     Q: [
       Number(r.Q1_ProductQuality)||0,
       Number(r.Q2_Taste)||0,
@@ -77,7 +77,7 @@ async function fetchData(){
 function renderMetrics(data){
   const total = data.length;
   document.getElementById("totalSubmissions").innerText = total;
-  const overallAvg = total? (data.reduce((sum,d)=>sum+d.Average,0)/total).toFixed(2) : 0;
+  const overallAvg = total ? (data.reduce((sum,d)=>sum+d.Average,0)/total).toFixed(2) : 0;
   document.getElementById("allDayRating").innerText = overallAvg;
 }
 
@@ -85,7 +85,7 @@ function renderAvgChart(data){
   const questionAvg = [];
   for(let i=0;i<10;i++){
     const valid = data.map(d=>d.Q[i]).filter(v=>v>0);
-    const avg = valid.length? (valid.reduce((a,b)=>a+b,0)/valid.length).toFixed(2):0;
+    const avg = valid.length ? (valid.reduce((a,b)=>a+b,0)/valid.length).toFixed(2) : 0;
     questionAvg.push(avg);
   }
 
@@ -95,18 +95,18 @@ function renderAvgChart(data){
     type:'bar',
     data:{
       labels:["Q1","Q2","Q3","Q4","Q5","Q6","Q7","Q8","Q9","Q10"],
-      datasets:[{label:"Average Rating per Question",data:questionAvg,backgroundColor:"#d71920"}]
+      datasets:[{label:"Average Rating per Question", data:questionAvg, backgroundColor:"#d71920"}]
     },
     options:{scales:{y:{min:0,max:5}}}
   });
 }
 
 function renderTable(data){
-  const tbody=document.querySelector("#feedbackTable tbody");
+  const tbody = document.querySelector("#feedbackTable tbody");
   tbody.innerHTML="";
   data.sort((a,b)=>new Date(b.Timestamp)-new Date(a.Timestamp));
   data.forEach(d=>{
-    const tr=document.createElement("tr");
+    const tr = document.createElement("tr");
     tr.innerHTML=`<td>${d.Timestamp}</td><td class="comments">${d.Comments}</td><td>${d.Average.toFixed(2)}</td>`;
     tbody.appendChild(tr);
   });
@@ -121,9 +121,8 @@ async function updateDashboard(){
 
 // Initial load
 updateDashboard();
-
-setInterval(updateDashboard,100);
-
+setInterval(updateDashboard,10000);
 </script>
+
 </body>
 </html>
