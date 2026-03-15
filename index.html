@@ -198,23 +198,23 @@ padding:40px;
 
 const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwXE2wRgtiglQTPAs0DXnEsr-5ywN5Dhrg39GgO-ce96vbLTqL0EadcO6l73i-dC-979Q/exec";
 
-let answers={};
+let answers = {};
 
 function createStars(){
 
 document.querySelectorAll(".star-rating").forEach(container=>{
 
-let name=container.dataset.name;
+let name = container.dataset.name;
 
 for(let i=1;i<=5;i++){
 
-let star=document.createElement("span");
-star.innerHTML="★";
+let star = document.createElement("span");
+star.innerHTML = "★";
 star.classList.add("star");
 
-star.onclick=()=>{
+star.addEventListener("click",function(){
 
-answers[name]=i;
+answers[name] = i;
 
 container.querySelectorAll(".star").forEach((s,index)=>{
 s.classList.toggle("active",index<i);
@@ -222,7 +222,7 @@ s.classList.toggle("active",index<i);
 
 updateProgress();
 
-};
+});
 
 container.appendChild(star);
 
@@ -236,55 +236,59 @@ createStars();
 
 function updateProgress(){
 
-let total=10;
+let total = 10;
+let answered = Object.keys(answers).length;
 
-let answered=Object.keys(answers).length;
+let percent = (answered/total)*100;
 
-let percent=(answered/total)*100;
-
-document.getElementById("progress").style.width=percent+"%";
+document.getElementById("progress").style.width = percent + "%";
 
 }
 
-document.getElementById("feedbackForm").addEventListener("submit",function(e){
+document.getElementById("feedbackForm").addEventListener("submit", function(e){
 
 e.preventDefault();
 
-if(Object.keys(answers).length<10){
+if(Object.keys(answers).length < 10){
 
-alert("Please answer all questions");
+alert("Please answer all 10 questions before submitting.");
 
 return;
 
 }
 
-let formData=new FormData();
+const submitBtn = document.querySelector("button");
+submitBtn.innerText = "Submitting...";
+submitBtn.disabled = true;
+
+let formData = new FormData();
 
 for(let key in answers){
-
 formData.append(key,answers[key]);
-
 }
 
 formData.append("recommend",document.querySelector("[name=recommend]").value);
-
 formData.append("comments",document.querySelector("[name=comments]").value);
 
 fetch(SCRIPT_URL,{
 method:"POST",
 body:formData
 })
-.then(res=>res.json())
-.then(()=>{
+.then(response => response.json())
+.then(data => {
 
-document.getElementById("feedbackForm").style.display="none";
-document.getElementById("thankyou").style.display="block";
+document.getElementById("feedbackForm").style.display = "none";
+document.getElementById("thankyou").style.display = "block";
+
+})
+.catch(error => {
+
+alert("Submission failed. Please check your internet connection.");
+submitBtn.innerText = "Submit Feedback";
+submitBtn.disabled = false;
 
 });
 
 });
 
 </script>
-
-</body>
-</html>
