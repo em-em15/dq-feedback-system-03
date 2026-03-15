@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dairy Queen Feedback Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {font-family:Arial,sans-serif;background:#f4f4f4;margin:0;padding:20px;}
+.container {max-width:1200px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+h2{text-align:center;color:#d71920;}
+.chart-container{width:45%;display:inline-block;margin:2%;}
+.comments-container{margin-top:40px;}
+.comment{background:#f9f9f9;padding:10px;border-radius:5px;margin-bottom:10px;transition:all 0.3s;}
+.highlight{background:#ffeeba;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Dairy Queen Feedback Dashboard</h2>
+
+<div id="charts">
+  <div class="chart-container"><canvas id="avgChart"></canvas></div>
+  <div class="chart-container"><canvas id="qCharts"></canvas></div>
+</div>
+
+<div class="comments-container">
+<h3>Latest Comments</h3>
+<div id="commentsList"></div>
+</div>
+</div>
+
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwd-nn1_iYHPz_VgEqbLhhBvBXoFqYtgv_EnVfpEy7H1yjwaBrHjeRJx3q-PqnahRAQQw/exec"; // Replace with your Apps Script Web App doGet URL
+let previousDataLength = 0;
+
+async function fetchData() {
+  const res = await fetch(SHEET_URL);
+  const data = await res.json();
+  return data;
+}
+
+function calculateAverages(data) {
+  const averages = [];
+  for(let i=1;i<=10;i++){
+    let sum=0,count=0;
+    data.forEach(r=>{
+      let val = Number(r[`Q${i}_${['ProductQuality','Taste','MenuVariety','ServiceSpeed','StaffFriendliness','OrderAccuracy','Cleanliness','StoreAmbience','ValueForMoney','OverallExperience'][i-1]}`]);
+      if(!isNaN(val)){sum+=val; count++;}
+    });
+    averages.push(count?sum/count:0);
+  }
+  return averages.map(a=>a.toFixed(2));
+}
+
+function renderCharts(data){
+  const avgRatings = calculateAverages(data);
+  const labels = ["Q1: Product","Q2: Taste","Q3: MenuVariety","Q4: Service","Q5: Staff","Q6: OrderAcc","Q7: Clean","Q8: Ambience","Q9: Value","Q10: Overall"];
+
+  // Mini-bar chart for all questions
+  const ctxQ = document.getElementById("qCharts").getContext("2d");
+  if(window.qChart) window.qChart.destroy();
+  window.qChart = new Chart(ctxQ,{
+    type:'bar',
+    data:{labels, datasets:[{label:"Average Rating", data:avgRatings, backgroundColor:'#d71920'}]},
+    options:{indexAxis:'y', scales:{x:{min:0,max:5}}}
+  });
+
+  // Overall average chart
+  const overallAvg = (avgRatings.reduce((a,b)=>a+Number(b),0)/avgRatings.length).toFixed(2);
+  const ctxAvg = document.getElementById("avgChart").getContext("2d");
+  if(window.avgChart) window.avgChart.destroy();
+  window.avgChart = new Chart(ctxAvg,{
+    type:'doughnut',
+    data:{labels:["Average Rating"], datasets:[{data:[overallAvg,5-overallAvg],backgroundColor:['#d71920','#eee']}]},
+    options:{plugins:{tooltip:{enabled:true}}}
+  });
+}
+
+function renderComments(data){
+  const commentsDiv = document.getElementById("commentsList");
+  commentsDiv.innerHTML="";
+  const comments = data.filter(r=>r.Comments).slice(-10).reverse();
+  comments.forEach((c,i)=>{
+    const div = document.createElement("div");
+    div.classList.add("comment");
+    if(data.length-previousDataLength>0 && i< data.length-previousDataLength) div.classList.add("highlight");
+    div.innerHTML = `<b>${c.Timestamp}</b>: ${c.Comments}`;
+    commentsDiv.appendChild(div);
+  });
+}
+
+async function refreshDashboard(){
+  const data = await fetchData();
+  renderCharts(data);
+  renderComments(data);
+  previousDataLength = data.length;
+}
+
+// Initial load
+refreshDashboard();
+
+// Refresh every 15 seconds for new submissions
+setInterval(refreshDashboard,15000);
+
+</script>
+</body>
+</html>
