@@ -70,21 +70,33 @@ function renderMetrics(data){
   const avg = data.length ? (data.reduce((s,d)=>s+d.Average,0)/data.length).toFixed(2) : 0;
   document.getElementById("avgRatingText").innerText = avg + " ⭐";
 
-  // 3D pie-like chart for Overall Rating
+  // 3D-like pie chart using gradient
   const remaining = (5 - avg).toFixed(2);
   const ctx = document.getElementById("overallChart").getContext("2d");
   if(window.overallChart) window.overallChart.destroy();
+
+  // create gradient for 3D effect
+  const gradient = ctx.createLinearGradient(0,0,200,200);
+  gradient.addColorStop(0, '#ff4d4d');
+  gradient.addColorStop(1, '#b30000');
+
   window.overallChart = new Chart(ctx,{
     type:'doughnut',
     data:{
       labels:["Average Rating","Remaining"],
       datasets:[{
         data:[avg,remaining],
-        backgroundColor:["#d71920","#e0e0e0"],
+        backgroundColor:[gradient,'#e0e0e0'],
         borderWidth:1
       }]
     },
-    options:{cutout:'60%',rotation:-90,plugins:{legend:{display:false}}}
+    options:{
+      cutout:'60%',
+      rotation:-90,
+      circumference:360,
+      plugins:{legend:{display:false}},
+      animation:{animateRotate:true,animateScale:true}
+    }
   });
 }
 
