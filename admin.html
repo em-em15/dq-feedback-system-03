@@ -38,13 +38,11 @@ tr:hover{background:#ffeaa6;cursor:pointer;}
   </div>
 </div>
 
-<h3>Feedback Table</h3>
+<h3>Customer Comments</h3>
 <table id="feedbackTable">
 <thead>
 <tr>
-<th>Timestamp</th>
 <th>Comments</th>
-<th>Average Rating</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -53,7 +51,7 @@ tr:hover{background:#ffeaa6;cursor:pointer;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // replace with your Apps Script URL
+const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // Replace with your Apps Script URL
 let previousIDs = new Set();
 
 async function fetchData(){
@@ -71,7 +69,6 @@ function renderMetrics(data){
   const avg = data.length ? (data.reduce((s,d)=>s+d.Average,0)/data.length).toFixed(2) : 0;
   document.getElementById("avgRatingText").innerText = avg + " ⭐";
 
-  // 3D-like pie chart using gradient
   const remaining = (5 - avg).toFixed(2);
   const ctx = document.getElementById("overallChart").getContext("2d");
   if(window.overallChart) window.overallChart.destroy();
@@ -108,8 +105,8 @@ function renderTable(data){
   data.forEach(d=>{
     const tr = document.createElement("tr");
     if(!previousIDs.has(d.Timestamp)) tr.classList.add("highlight");
-    tr.title = Average Rating: ${d.Average.toFixed(2)} ⭐;
-    tr.innerHTML=`<td>${d.Timestamp}</td><td class="comments">${d.Comments}</td><td>${d.Average.toFixed(2)}</td>`;
+    tr.title = d.Comments; // Show full comment on hover
+    tr.innerHTML=`<td class="comments">${d.Comments}</td>`;
     tbody.appendChild(tr);
     newIDs.add(d.Timestamp);
   });
