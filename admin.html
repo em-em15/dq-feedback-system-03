@@ -19,6 +19,7 @@ tr:nth-child(even){background:#f9f9f9;}
 .highlight{background:#fff3a6;animation:fade 2s forwards;}
 @keyframes fade{from{background:#fff3a6;}to{background:white;}}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -42,6 +43,12 @@ tr:nth-child(even){background:#f9f9f9;}
   <!-- Per question ratings populated here -->
 </div>
 
+<h3>Rating Trends</h3>
+<canvas id="overallTrendChart" width="400" height="200"></canvas>
+
+<h3>Per-Question Average Ratings</h3>
+<canvas id="perQuestionChart" width="400" height="200"></canvas>
+
 <h3>Customer Comments</h3>
 <table id="feedbackTable">
 <thead>
@@ -56,7 +63,7 @@ tr:nth-child(even){background:#f9f9f9;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; // Replace with your Apps Script URL
+const API_URL = "https://script.google.com/macros/s/AKfycbzvLTK-sW_QKzQXv8F2BYlBxJA3FFUvBof6A_EzmoA6RLkP7fxYitUJqbu6B_62zsReCA/exec"; 
 let previousIDs = new Set();
 
 // List of questions (must match Google Sheet column names)
@@ -74,17 +81,22 @@ const QUESTIONS = [
 ];
 
 async function fetchData(){
-  const res = await fetch(API_URL);
-  const data = await res.json();
-  return data.map(r=>{
-    let ratings = {};
-    QUESTIONS.forEach(q=>ratings[q] = Number(r[q]) || 0);
-    return {
-      Timestamp: r.Timestamp || "",
-      Comments: r.Comments || "",
-      Ratings: ratings
-    };
-  });
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    return data.map(r=>{
+      let ratings = {};
+      QUESTIONS.forEach(q=>ratings[q] = Number(r[q]) || 0);
+      return {
+        Timestamp: r.Timestamp || "",
+        Comments: r.Comments || "",
+        Ratings: ratings
+      };
+    });
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    return [];
+  }
 }
 
 function computeOverall(data){
@@ -125,7 +137,11 @@ function renderTable(data){
   let newIDs = new Set();
   data.forEach(d=>{
     const tr = document.createElement("tr");
-    if(!previousIDs.has(d.Timestamp)) tr.classList.add("highlight");
+    if(!previousIDs.has(d.Timestamp)) {
+      tr.classList.remove("highlight");
+      void tr.offsetWidth; // force reflow
+      tr.classList.add("highlight");
+    }
     tr.innerHTML=`<td>${d.Timestamp}</td><td>${d.Comments}</td>`;
     tbody.appendChild(tr);
     newIDs.add(d.Timestamp);
@@ -133,10 +149,69 @@ function renderTable(data){
   previousIDs = newIDs;
 }
 
+// Chart.js integration
+let overallTrendChart, perQuestionChart;
+
+function renderCharts(data){
+  // Overall trend
+  const timestamps = data.map(d => d.Timestamp);
+  const overallRatings = data.map(d => {
+    const vals = Object.values(d.Ratings).filter(v=>v>0);
+    return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+  });
+
+  if(overallTrendChart) overallTrendChart.destroy();
+  overallTrendChart = new Chart(document.getElementById("overallTrendChart"), {
+    type: 'line',
+    data: {
+      labels: timestamps,
+      datasets: [{
+        label: 'Overall Rating',
+        data: overallRatings,
+        borderColor: '#d71920',
+        backgroundColor: 'rgba(215,25,32,0.2)',
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, max: 5 }
+      }
+    }
+  });
+
+  // Per-question averages
+  const perQ = computePerQuestion(data);
+  const labels = QUESTIONS.map(q=>q.replace(/_/g," ").replace("Q","Question "));
+  const values = QUESTIONS.map(q=>perQ[q]);
+
+  if(perQuestionChart) perQuestionChart.destroy();
+  perQuestionChart = new Chart(document.getElementById("perQuestionChart"), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Average Rating',
+        data: values,
+        backgroundColor: '#0057a4'
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, max: 5 }
+      }
+    }
+  });
+}
+
 async function updateDashboard(){
   const data = await fetchData();
   renderMetrics(data);
   renderTable(data);
+  renderCharts(data);
 }
 
 // Initial load
